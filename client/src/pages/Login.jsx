@@ -2,16 +2,33 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../config/api";
 import { useNavigate } from "react-router-dom";
+import { useGoogleAuth } from "../config/GoogleAuth";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  const { isLoading, error, isInitialized, signInWithGoogle } = useGoogleAuth();
+
+  const handleGoogleSuccess = async (userData) => {
+    console.log("Google Login Data", userData);
+  };
+
+  const GoogleLogin = () => {
+    signInWithGoogle(handleGoogleSuccess, handleGoogleFailure);
+  };
+
+  const handleGoogleFailure = (error) => {
+    console.error("Google login failed:", error);
+    toast.error("Google login failed. Please try again.");
+  };
 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [Loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,7 +41,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       const res = await api.post("/auth/login", formData);
@@ -42,7 +59,7 @@ const Login = () => {
       console.log(error);
       toast.error(error?.response?.data?.message || "Login failed");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -71,7 +88,7 @@ const Login = () => {
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
-                disabled={isLoading}
+                disabled={Loading}
                 required
                 className="input input-bordered w-full"
               />
@@ -82,7 +99,7 @@ const Login = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                disabled={isLoading}
+                disabled={Loading}
                 required
                 className="input input-bordered w-full"
               />
@@ -90,7 +107,7 @@ const Login = () => {
               <div className="flex gap-3 pt-4">
                 <button
                   type="reset"
-                  disabled={isLoading}
+                  disabled={Loading}
                   className="btn btn-secondary btn-outline flex-1"
                 >
                   Clear
@@ -98,13 +115,40 @@ const Login = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={Loading}
                   className="btn btn-primary flex-1"
                 >
-                  {isLoading ? "Logging in..." : "Login"}
+                  {Loading ? "Logging in..." : "Login"}
                 </button>
               </div>
             </form>
+
+            {/* Google Login button */}
+
+            <div className="mt-4">
+              {error ? (
+                <button
+                  className="btn btn-outline btn-error font-sans flex items-center justify-center gap-2 w-full"
+                  disabled
+                >
+                  <FcGoogle className="text-xl" />
+                  {error}
+                </button>
+              ) : (
+                <button
+                  onClick={GoogleLogin}
+                  className="btn btn-outline font-sans flex items-center justify-center gap-2 w-full"
+                  disabled={!isInitialized || isLoading}
+                >
+                  <FcGoogle className="text-xl" />
+                  {isLoading
+                    ? "Loading..."
+                    : isInitialized
+                      ? "Continue with Google"
+                      : "Google Auth Error"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

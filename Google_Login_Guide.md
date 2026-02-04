@@ -86,7 +86,6 @@ Add to your `.gitignore` file:
 
 ## Step 5: Create Auth Context
 
-
 ## Step 6: Update Main App Component
 
 ## Step 7: Update Login Page
