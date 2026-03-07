@@ -18,7 +18,7 @@ export const Protect = async (req, res, next) => {
       return next(error);
     }
 
-    console.log(verifiedUser);
+  //  console.log(verifiedUser);
   
 
     req.user = verifiedUser;

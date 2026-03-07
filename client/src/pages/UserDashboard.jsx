@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../config/api";
+import { useNavigate } from "react-router-dom";
 
 const UserDashboard = () => {
-  const { user, isLogin, setUser } = useAuth();
+  const { user, isLogin, setUser, setIsLogin } = useAuth();
+  const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -90,10 +93,20 @@ const UserDashboard = () => {
       }
     } catch (err) {
       console.error("Error updating profile:", err);
-      setError(err.response?.data?.message || "Failed to update profile. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Failed to update profile. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    sessionStorage.removeItem("AppUser");
+    setIsLogin(false);
+    navigate("/login");
   };
 
   return (
@@ -136,7 +149,9 @@ const UserDashboard = () => {
                 <label className="text-sm font-semibold text-gray-600 uppercase">
                   Email
                 </label>
-                <p className="text-lg text-gray-900 mt-2">{user?.email || "Not provided"}</p>
+                <p className="text-lg text-gray-900 mt-2">
+                  {user?.email || "Not provided"}
+                </p>
               </div>
 
               {/* Mobile Number */}
@@ -194,17 +209,27 @@ const UserDashboard = () => {
           </div>
 
           {/* Edit Button */}
-          <button
-            onClick={handleEdit}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-          >
-            Edit Profile
-          </button>
+          <div className="flex flex-col gap-4">
+            <button
+              onClick={handleEdit}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+            >
+              Edit Profile
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       ) : (
         // Edit Mode
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">Edit Profile</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+            Edit Profile
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
