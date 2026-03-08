@@ -16,7 +16,7 @@ const ChatWindow = ({ receiver }) => {
   const [inputMessage, setInputMessage] = useState("");
 
   const scrolltoBottom = () => {
-    console.log(bottomRef);
+   // console.log(bottomRef);
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -41,15 +41,14 @@ const ChatWindow = ({ receiver }) => {
     const timestamp = new Date().toISOString();
 
     try {
-      // const res = await api.post(`/user/sendMessage/${receiverId}`, {
-      //   inputMessage,
-      // });
-      //socketAPI.emit("send",messagePacket)
-      setInputMessage("");
-      setMessages((prev) => [
-        ...prev,
-        { ...messagePacket, createdAt: timestamp, updatedAt: timestamp },
-      ]);
+      if (socketAPI.connected) {
+        socketAPI.emit("send", messagePacket);
+        setInputMessage("");
+        setMessages((prev) => [
+          ...prev,
+          { ...messagePacket, createdAt: timestamp, updatedAt: timestamp },
+        ]);
+      }
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Message Sending Failed");
@@ -66,6 +65,11 @@ const ChatWindow = ({ receiver }) => {
     }
   };
 
+  const handleReceiveMessage = (newMessagePack) => {
+    // console.log(newMessagePack);
+    setMessages((prev) => [...prev, newMessagePack]);
+  };
+
   //on component Load
   useEffect(() => {
     setMessages([]);
@@ -73,6 +77,16 @@ const ChatWindow = ({ receiver }) => {
       fetchAllOldMessage();
     }
   }, [receiver]);
+
+  useEffect(() => {
+    socketAPI.on("receive", handleReceiveMessage);
+
+    return () => {
+      socketAPI.off("receive", handleReceiveMessage);
+    };
+  }, [receiverId, handleReceiveMessage]);
+
+
 
   if (!receiver) {
     return (
