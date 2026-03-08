@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "description": "Creating a chat app",
-  "author": "Arunav Kishor",
+  "author": "Raj Vardhan",
   "license": "ISC",
   "type": "module",
   "main": "index.js",
