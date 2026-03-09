@@ -17,7 +17,7 @@ const app = express();
 // Middlewares
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173","https://chatapp.dropsofchange.in"],
     credentials: true,
   }),
 );
@@ -56,7 +56,7 @@ const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173","https://chatapp.dropsofchange.in"],
     credentials: true,
     methods: ["GET", "POST"],
   },
